@@ -111,7 +111,7 @@ function WarplanepornLockscreen {
         }
         if (Test-Path $warplanepornPic) {
             Copy-Item -Path $warplanepornPic -Destination $savedDir -Force | Out-Null
-            Rename-Item -Path (Join-Path $savedDir "lockscreen.jpg") -NewName ((Get-date -Format "dd_MM_yyyy HH_mm_ss") + ".jpg") | Out-Null
+            Rename-Item -Path (Join-Path $savedDir "lockscreen.jpg") -NewName ((Get-date -Format "yyyy_MM_dd HH_mm_ss") + ".jpg") | Out-Null
             Write-Host "Successfully saved current wallpaper" -ForegroundColor Green
         }
         else {
@@ -132,7 +132,7 @@ function WarplanepornLockscreen {
     if ($add -and (!$config)) {
         $subreddit_add = $add.Trim()
         $ProgressPreference = 'SilentlyContinue'
-        $subredditStatus = Invoke-WebRequest ("https://reddit.com/r/{0}/about.json" -f $subreddit_add) | ConvertFrom-Json
+        $subredditStatus = Invoke-WebRequest ("https://old.reddit.com/r/{0}/about.json" -f $subreddit_add) | ConvertFrom-Json
         if ($subredditStatus.data.subreddit_type -eq "public") {
             $configuration.subreddits += $subreddit_add
             $configuration | ConvertTo-Json | Out-File $configPath
@@ -262,7 +262,7 @@ function Set-Config {
         if ($subreddit -eq "") { Break }
 
         Write-Host ("Checking subreddit {0}..." -f $subreddit) -ForegroundColor DarkYellow
-        $subredditStatus = Invoke-WebRequest ("https://reddit.com/r/{0}/about.json" -f $subreddit) | ConvertFrom-Json
+        $subredditStatus = Invoke-WebRequest ("https://old.reddit.com/r/{0}/about.json" -f $subreddit) | ConvertFrom-Json
         if ($subredditStatus.data.subreddit_type -eq "public") {
             $subreddits += $subreddit
             $inSubIdx += 1
@@ -343,7 +343,7 @@ function Get-Picture {
         $Subreddit = @($ShuffledSubreddits)[$subIdx]
         Write-Log ("Will choose image from subreddit {0}, sorting by {1}" -f $Subreddit, $sort);
 
-        $request = 'https://reddit.com/r/{0}/{1}.json?limit=10' -f $Subreddit, $sort
+        $request = 'https://old.reddit.com/r/{0}/{1}.json?limit=10' -f $Subreddit, $sort
         $jsonRequest = Invoke-WebRequest $request | ConvertFrom-Json
         $posts = $jsonRequest.data.children
 
@@ -548,7 +548,7 @@ function Write-Log {
     $logfile = Join-Path $PSScriptRoot "log.txt"
 
     if (($null -ne $logfile)) {
-        $date = Get-date -Format "dd/MM/yyyy HH:mm:ss"
+        $date = Get-date -Format "yyyy-MM-dd HH:mm:ss"
         if (!(Test-Path $logfile)) { Set-Content $logfile "WarplanepornLockscreen log" }
         if ((get-item $logfile).length -gt 64kb) {
             $oldlog = (Get-Content $logfile)[-40..-1]
